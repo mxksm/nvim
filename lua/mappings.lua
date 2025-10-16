@@ -18,7 +18,8 @@ map("n", "<CR>", ":w<CR>", { desc = "Save file", noremap = true, silent = true }
 map("n", "G", "Gzz", { desc = "Go to end of file and center" })
 
 -- Don't overwrite clipboard on paste
-map({ "n", "x" }, "p", "P")
+-- map({ "n", "x" }, "p", "P")
+map("x", "p", '"_dP')
 
 -----------------------------------------------------------
 -- 🤖 COPILOT
