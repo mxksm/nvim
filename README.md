@@ -1,1 +1,1 @@
-**This is my nvim config**
+**This is my nvim config based on NvChad**
