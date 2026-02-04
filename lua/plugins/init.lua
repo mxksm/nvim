@@ -74,6 +74,14 @@ return {
   },
 
   {
+    "nvim-mini/mini.align",
+    lazy = false,
+    config = function()
+      require("mini.align").setup()
+    end,
+  },
+
+  {
     'MeanderingProgrammer/render-markdown.nvim',
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' },            -- if you use the mini.nvim suite
     -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.icons' },        -- if you use standalone mini plugins
@@ -83,4 +91,23 @@ return {
     opts = {},
     lazy = false,
   },
+
+
+
+--  {
+--    "xiyaowong/nvim-transparent",
+--    config = function()
+--      require("transparent").setup({
+--        extra_groups = { -- add any highlight groups you want transparent
+--          "NormalFloat",
+--          "NvimTreeNormal",
+--          "TelescopeNormal",
+--          "TelescopeBorder",
+--          "FloatBorder",
+--        },
+--        exclude_groups = {}, -- leave empty unless you want to keep some opaque
+--      })
+--    end,
+--    lazy = false,
+--  },
 }

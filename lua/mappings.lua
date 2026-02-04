@@ -5,7 +5,16 @@ require "nvchad.mappings"
 local map = vim.keymap.set
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
-map("i", "jk", "<ESC>")
+--map("i", "jk", "<ESC>")
+
+map("n", "j", function()
+  return vim.v.count == 0 and "gj" or "j"
+end, { expr = true, desc = "Visual line down" })
+
+map("n", "k", function()
+  return vim.v.count == 0 and "gk" or "k"
+end, { expr = true, desc = "Visual line up" })
+
 
 -----------------------------------------------------------
 -- 🧠 GENERAL / UTILITY MAPPINGS
@@ -13,6 +22,7 @@ map("i", "jk", "<ESC>")
 
 -- Save file with Enter
 map("n", "<CR>", ":w<CR>", { desc = "Save file", noremap = true, silent = true })
+map("n", "<leader><leader>", ":w<CR>", { desc = "Save file", noremap = true, silent = true })
 
 -- Move to end and center
 map("n", "G", "Gzz", { desc = "Go to end of file and center" })
@@ -83,5 +93,4 @@ map("i", "kk", "^", { desc = "Insert caret" })
 map("i", "jj", "_", { desc = "Insert underscore" })
 map("i", "ii", "*", { desc = "Insert asterisk" })
 
-
-
+--map("n", "<leader>tt", ":lua require('base46').toggle_transparency()<CR>", { noremap = true, silent = true, desc = "Toggle Background Transparency" })

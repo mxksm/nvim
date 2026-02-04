@@ -5,21 +5,29 @@
 ---@type ChadrcConfig
 local M = {}
 
-M.base46 = {
-	theme = "wombat",
 
-	-- hl_override = {
-	-- 	Comment = { italic = true },
-	-- 	["@comment"] = { italic = true },
-	-- },
+M.base46 = {
+	theme = "gruvbox",
+	-- theme = "gruvbox",
+
+  transparency = false,
+	hl_override = {
+	  Comment = { italic = true },
+	 	["@comment"] = { italic = true },
+    Visual = { fg = "white", bg = "darkgrey" },
+    LineNr = { fg = "#6c707b" },
+	},
 }
 
--- M.nvdash = { load_on_startup = true }
--- M.ui = {
---       tabufline = {
---          lazyload = false
---      }
--- }
+M.ui = {
+  transparency = true,
+  nvdash = {
+    load_on_startup = true,
+  },
+  tabufline = {
+    lazyload = false
+  },
+}
 
 M.plugins = "plugins"
 
