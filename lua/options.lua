@@ -16,10 +16,9 @@ wo.number = true
 wo.relativenumber = true
 opt.cursorlineopt = "both"
 
-
 -- Visual selection highlight
-vim.api.nvim_set_hl(0, "Visual", { fg = "White", bg = "DarkGrey" })
-vim.cmd("hi LineNr guifg=#6c707b")
+--vim.api.nvim_set_hl(0, "Visual", { fg = "White", bg = "DarkGrey" })
+--vim.cmd("hi LineNr guifg=#6c707b")
 
 -----------------------------------------------------------
 -- 🧩 INDENTATION / FORMATTING
@@ -37,9 +36,9 @@ opt.linebreak = true
 -- 🔭 OTHER SETTINGS
 -----------------------------------------------------------
 
+opt.spell = true
 g.copilot_no_tab_map = true
 g.vimtex_view_method = "sioyek"
 g.vimtex_quickfix_mode = 0
 g.quickfix_open = false
 g.copilot_enabled = false
-
