@@ -60,7 +60,97 @@ end
 map("n", "<leader>la", la_compile, { desc = "LaTeX compile + view", noremap = true, silent = true })
 map("n", "<leader>cc", ":VimtexCompile<CR>", { desc = "Compile LaTeX", noremap = true, silent = true })
 map("n", "<leader>pd", ':lua vim.fn.jobstart({"zsh", "-c", "source ~/.zshrc && pdf"}, {detach = true})<CR>', { desc = "Open PDF", noremap = true, silent = true })
-map("n", "<leader>lo", ':lua require("nvterm.terminal").send("typst watch main.typ", "horizontal")<CR>:lua vim.fn.jobstart({"zsh", "-c", "source ~/.zshrc && pdf"}, {detach = true})<CR>', { desc = "Typst watch + PDF", noremap = true, silent = true })
+
+--- old typst compilation
+--map("n", "<leader>lo", ':lua require("nvterm.terminal").send("typst watch main.typ", "horizontal")<CR>:lua vim.fn.jobstart({"zsh", "-c", "source ~/.zshrc && pdf"}, {detach = true})<CR>', { desc = "Typst watch + PDF", noremap = true, silent = true })
+
+--- new typst stuff
+
+
+local nvterm = require("nvterm.terminal")
+
+local typst_state = {
+  last_ok = true,
+  last_error = nil,
+}
+
+local function typst_compile_silent()
+  vim.fn.jobstart(
+    { "typst", "compile", "main.typ" },
+    {
+      stdout_buffered = true,
+      stderr_buffered = true,
+
+      on_stderr = function(_, data)
+        if data and #data > 0 then
+          typst_state.last_error = table.concat(data, "\n")
+        end
+      end,
+
+      on_exit = function(_, code)
+        vim.schedule(function()
+          if code == 0 then
+            typst_state.last_ok = true
+            typst_state.last_error = nil
+            vim.api.nvim_echo(
+              { { "Typst: compilation successful", "None" } },
+              false,
+              {}
+            )
+          else
+            typst_state.last_ok = false
+
+            local short = "Typst: compilation failed"
+            if typst_state.last_error then
+              for line in typst_state.last_error:gmatch("[^\n]+") do
+                if line ~= "" then
+                  short = "Typst error: " .. line
+                  break
+                end
+              end
+            end
+
+            vim.api.nvim_echo({ { short, "ErrorMsg" } }, false, {})
+          end
+        end)
+      end,
+    }
+  )
+end
+
+map("n", "<leader>lt", function()
+  local cur_win = vim.api.nvim_get_current_win()
+  local cur_pos = vim.api.nvim_win_get_cursor(cur_win)  -- {line, col}
+
+  nvterm.toggle("horizontal", 1)
+
+  -- show full log if there was an error
+  if not typst_state.last_ok and typst_state.last_error then
+    nvterm.send("clear", "horizontal", 1)
+    nvterm.send("typst compile main.typ", "horizontal", 1)
+  end
+
+  vim.api.nvim_set_current_win(cur_win)
+  vim.api.nvim_win_set_cursor(cur_win, cur_pos)  -- restore exact cursor
+end, { desc = "Toggle Typst log", noremap = true, silent = true })
+
+-- Autosave + compile on change
+vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
+  callback = function()
+    local buf = vim.api.nvim_get_current_buf()
+    local name = vim.api.nvim_buf_get_name(buf)
+
+    if name:sub(-4) == ".typ" and vim.bo[buf].modified then
+      vim.cmd("silent write")        -- keep your autosave
+      typst_compile_silent()         -- trigger compile immediately
+    end
+
+    if name:sub(-4) == ".tex" and vim.bo[buf].modified then
+      vim.cmd("silent write")        -- keep your autosave
+      typst_compile_silent()         -- trigger compile immediately
+    end
+  end,
+})
 
 -----------------------------------------------------------
 -- 🧰 TERMINAL
