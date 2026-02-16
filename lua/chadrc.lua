@@ -7,8 +7,7 @@ local M = {}
 
 
 M.base46 = {
-	theme = "gruvbox",
-	-- theme = "gruvbox",
+	theme = "aylin",
 
   transparency = false,
 	hl_override = {
