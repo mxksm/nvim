@@ -5,9 +5,11 @@
 ---@type ChadrcConfig
 local M = {}
 
+-- nice dark theme
+-- theme = "flexoki",
 
 M.base46 = {
-	theme = "aylin",
+	theme = "flexoki",
 
   transparency = false,
 	hl_override = {
