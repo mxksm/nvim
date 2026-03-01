@@ -31,6 +31,27 @@ map("n", "G", "Gzz", { desc = "Go to end of file and center" })
 -- map({ "n", "x" }, "p", "P")
 map("x", "p", '"_dP')
 
+map("n", "<leader>z", function()
+  vim.cmd.normal({ args = { "1z=" }, bang = true })
+end, { desc = "Fix spelling (no popup)" }
+)
+
+map("n", "<leader>s", function()
+  local start = vim.fn.getpos("'{")[2]
+  local finish = vim.fn.getpos("'}")[2]
+  if start <= finish then
+    local cursor = vim.fn.getpos(".")
+    vim.cmd(
+      string.format(
+        "silent! %d,%ds/\\([.!?]\\)\\s\\+\\|\\.)\\s\\+/\\1\\r/g | noh",
+        start,
+        finish
+      )
+    )
+    vim.fn.setpos(".", { cursor[1], start + 1, cursor[3], cursor[4] })
+  end
+end, { desc = "Split sentences in current paragraph without highlighting" })
+
 -----------------------------------------------------------
 -- 🤖 COPILOT
 -----------------------------------------------------------
@@ -62,7 +83,23 @@ map("n", "<leader>cc", ":VimtexCompile<CR>", { desc = "Compile LaTeX", noremap =
 map("n", "<leader>pd", ':lua vim.fn.jobstart({"zsh", "-c", "source ~/.zshrc && pdf"}, {detach = true})<CR>', { desc = "Open PDF", noremap = true, silent = true })
 map("n", "<leader>lo", ':lua require("nvterm.terminal").send("typst watch main.typ", "horizontal")<CR>:lua vim.fn.jobstart({"zsh", "-c", "source ~/.zshrc && pdf"}, {detach = true})<CR>', { desc = "Typst watch + PDF", noremap = true, silent = true })
 
+
 local nvterm = require("nvterm.terminal")
+
+local typst_autosave = true
+
+map("n", "<leader>ta", function()
+  typst_autosave = not typst_autosave
+  vim.notify(
+    "Typst autosave: " .. (typst_autosave and "ON" or "OFF"),
+    vim.log.levels.INFO
+  )
+end, { desc = "Toggle Typst autosave" })
+
+local function typst_args()
+  local now = os.date("%Y %m %d %H %M %S")
+  return "main.typ", now
+end
 
 local typst_state = {
   last_ok = true,
@@ -70,8 +107,9 @@ local typst_state = {
 }
 
 local function typst_compile_silent()
+  local file, now = typst_args()
   vim.fn.jobstart(
-    { "typst", "compile", "main.typ" },
+    { "typst", "compile", file, "--input", "now=" .. now },
     {
       stdout_buffered = true,
       stderr_buffered = true,
@@ -148,7 +186,7 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
     local buf = vim.api.nvim_get_current_buf()
     local name = vim.api.nvim_buf_get_name(buf)
 
-    if name:sub(-4) == ".typ" then
+    if name:sub(-4) == ".typ" and typst_autosave then
       vim.cmd("silent write")
       typst_compile_debounced()
     --elseif name:sub(-4) == ".tex" then
@@ -158,6 +196,13 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
   end,
 })
 
+vim.api.nvim_create_autocmd("BufWritePost", {
+  callback = function(args)
+    if args.file:sub(-4) == ".typ" then
+      typst_compile_debounced()
+    end
+  end,
+})
 
 local latex_float_win = nil
 local latex_float_buf = nil
@@ -232,7 +277,15 @@ local function toggle_typst_terminal()
     vim.defer_fn(function()
       -- FULL reset: clears scrollback + screen
       nvterm.send([[printf '\033[3J\033c']], "float", 1)
-      nvterm.send("typst compile main.typ", "float", 1)
+      -- nvterm.send("typst compile main.typ", "float", 1)
+
+      local file, now = typst_args()
+      nvterm.send(
+        string.format('typst compile "%s" --input "now=%s"', file, now),
+        "float",
+        1
+      )
+
     end, 20)
   else
     vim.notify("Typst: last compilation successful", vim.log.levels.INFO)
@@ -242,7 +295,7 @@ local function toggle_typst_terminal()
   vim.api.nvim_win_set_cursor(cur_win, cur_pos)
 end
 
-vim.keymap.set("n", "<leader>q", function()
+map("n", "<leader>q", function()
   local filename = vim.api.nvim_buf_get_name(0)
 
   if filename:sub(-4) == ".typ" then
