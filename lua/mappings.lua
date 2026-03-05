@@ -43,7 +43,7 @@ map("n", "<leader>s", function()
     local cursor = vim.fn.getpos(".")
     vim.cmd(
       string.format(
-        "silent! %d,%ds/\\([.!?]\\)\\s\\+\\|\\.)\\s\\+/\\1\\r/g | noh",
+        "silent! %d,%ds/\\(\\.[)]*\\|[!?]\\)\\s\\+/\\1\\r/g | noh",
         start,
         finish
       )
