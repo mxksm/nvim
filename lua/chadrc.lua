@@ -6,10 +6,10 @@
 local M = {}
 
 -- nice dark theme
--- theme = "ashes",
+-- theme = "flexoki",
 
 M.base46 = {
-	theme = "ashes",
+	theme = "flexoki",
 
   transparency = false,
 	hl_override = {
