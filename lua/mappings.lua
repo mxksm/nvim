@@ -20,6 +20,19 @@ end, { expr = true, desc = "Visual line up" })
 -- 🧠 GENERAL / UTILITY MAPPINGS
 -----------------------------------------------------------
 
+-- Smart Ctrl‑n: open tree, focus it, or close it only when focused
+map("n", "<C-n>", function()
+  local ft = vim.bo.filetype
+  if ft == "NvimTree" then
+    -- If the tree window is currently focused → close it
+    vim.cmd("NvimTreeClose")
+  else
+    -- If the tree is open but not focused → focus it
+    -- `:NvimTreeFocus` opens the tree if it’s closed
+    vim.cmd("NvimTreeFocus")
+  end
+end, { desc = "Smart toggle/focus NvimTree", noremap = true, silent = true })
+
 -- Save file with Enter
 map("n", "<CR>", ":w<CR>", { desc = "Save file", noremap = true, silent = true })
 map("n", "<leader><leader>", ":w<CR>", { desc = "Save file", noremap = true, silent = true })
