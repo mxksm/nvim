@@ -11,7 +11,7 @@ local M = {}
 M.base46 = {
 	theme = "palenight",
 
-  transparency = false,
+  transparency = true,
 	hl_override = {
 	  Comment = { italic = true },
 	 	["@comment"] = { italic = true },
@@ -26,6 +26,7 @@ M.ui = {
     load_on_startup = true,
   },
   tabufline = {
+--    enabled = false, -- This completely hides the top buffer/tab bar
     lazyload = false
   },
 }
