@@ -332,5 +332,6 @@ map("t", "<C-j>", [[<C-\><C-n>]], { desc = "Exit terminal mode", noremap = true,
 map("i", "kk", "^", { desc = "Insert caret" })
 map("i", "jj", "_", { desc = "Insert underscore" })
 map("i", "ii", "*", { desc = "Insert asterisk" })
+map("i", "mm", "\\", { desc = "Insert backslash " })
 
 --map("n", "<leader>tt", ":lua require('base46').toggle_transparency()<CR>", { noremap = true, silent = true, desc = "Toggle Background Transparency" })
