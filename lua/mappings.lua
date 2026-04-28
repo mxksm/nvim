@@ -72,7 +72,12 @@ end, { desc = "Split sentences in current paragraph without highlighting" })
 map("n", "<leader>ce", ':Lazy load copilot.vim<CR>:Copilot enable<CR>:Copilot status<CR>:echo "Copilot Enabled"<CR>', { desc = "Enable Copilot", noremap = true, silent = true })
 map("n", "<leader>cd", ':Copilot disable<CR>:echo "Copilot Disabled"<CR>', { desc = "Disable Copilot", noremap = true, silent = true })
 map("n", "<leader>pa", ':Lazy load copilot.vim<CR>:Copilot panel<CR>:echo "Copilot Panel"<CR>', { desc = "Open Copilot Panel", noremap = true, silent = true })
-map("i", "<C-J>", 'copilot#Accept("<CR>")', { expr = true, silent = true, desc = "Accept Copilot suggestion" })
+map("i", "<C-J>", 'copilot#Accept("<CR>")', { 
+  expr = true, 
+  silent = true, 
+  replace_keycodes = false, -- This prevents the junk characters
+  desc = "Accept Copilot suggestion" 
+})
 
 -----------------------------------------------------------
 -- 🔍 TELESCOPE
@@ -99,7 +104,7 @@ map("n", "<leader>lo", ':lua require("nvterm.terminal").send("typst watch main.t
 
 local nvterm = require("nvterm.terminal")
 
-local typst_autosave = true
+local typst_autosave = false
 
 map("n", "<leader>ta", function()
   typst_autosave = not typst_autosave
@@ -332,6 +337,5 @@ map("t", "<C-j>", [[<C-\><C-n>]], { desc = "Exit terminal mode", noremap = true,
 map("i", "kk", "^", { desc = "Insert caret" })
 map("i", "jj", "_", { desc = "Insert underscore" })
 map("i", "ii", "*", { desc = "Insert asterisk" })
-map("i", "mm", "\\", { desc = "Insert backslash " })
 
 --map("n", "<leader>tt", ":lua require('base46').toggle_transparency()<CR>", { noremap = true, silent = true, desc = "Toggle Background Transparency" })
