@@ -27,7 +27,8 @@ M.ui = {
   },
   tabufline = {
 --    enabled = false, -- This completely hides the top buffer/tab bar
-    lazyload = false
+    lazyload = false,
+    order = { "treeOffset", "buffers", "tabs" },
   },
 }
 
