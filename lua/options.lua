@@ -37,6 +37,7 @@ opt.linebreak = true
 -----------------------------------------------------------
 
 opt.spell = true
+opt.clipboard = ""
 g.copilot_no_tab_map = true
 g.vimtex_view_method = "sioyek"
 g.vimtex_quickfix_mode = 0

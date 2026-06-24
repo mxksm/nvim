@@ -1,0 +1,2 @@
+WRN 2026-06-23T21:05:41.550 ?.73515    server_start:193: Failed to start server: operation not permitted: /var/folders/rf/nfs37x955rb73bd93nl2_z_r0000gn/T/nvim.maksim/9DDfDI/nvim.73515.0
+WRN 2026-06-23T21:05:46.406 ?.73889    server_start:193: Failed to start server: operation not permitted: /var/folders/rf/nfs37x955rb73bd93nl2_z_r0000gn/T/nvim.maksim/VqNRq9/nvim.73889.0
