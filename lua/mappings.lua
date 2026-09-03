@@ -20,6 +20,81 @@ end, { expr = true, desc = "Visual line up" })
 -- 🧠 GENERAL / UTILITY MAPPINGS
 -----------------------------------------------------------
 
+local function toggle_reading_margin()
+  local api = vim.api
+
+  -- Close an existing reading margin in this tab.
+  for _, win in ipairs(api.nvim_tabpage_list_wins(0)) do
+    local ok, is_margin = pcall(api.nvim_win_get_var, win, "reading_margin")
+
+    if ok and is_margin then
+      api.nvim_win_close(win, true)
+      return
+    end
+  end
+
+  local text_width = 100
+  local text_win = api.nvim_get_current_win()
+  local was_fixed = api.nvim_get_option_value("winfixwidth", {
+    win = text_win,
+  })
+
+  -- Unlisted scratch buffer: won't appear in the buffer bar.
+  local margin_buf = api.nvim_create_buf(false, true)
+  vim.bo[margin_buf].bufhidden = "wipe"
+  vim.bo[margin_buf].modifiable = false
+
+  vim.cmd("botright vsplit")
+
+  local margin_win = api.nvim_get_current_win()
+  api.nvim_win_set_buf(margin_win, margin_buf)
+  api.nvim_win_set_var(margin_win, "reading_margin", true)
+
+  local margin_options = {
+    number = false,
+    relativenumber = false,
+    cursorline = false,
+    cursorcolumn = false,
+    signcolumn = "no",
+    foldcolumn = "0",
+    statuscolumn = "",
+    colorcolumn = "",
+    statusline = " ",
+    winbar = "",
+    fillchars = "eob: ",
+  }
+
+  for option, value in pairs(margin_options) do
+    api.nvim_set_option_value(option, value, {
+      win = margin_win,
+    })
+  end
+
+  -- Keep the editing window at the chosen width.
+  api.nvim_set_current_win(text_win)
+  pcall(api.nvim_win_set_width, text_win, text_width)
+  api.nvim_set_option_value("winfixwidth", true, {
+    win = text_win,
+  })
+
+  -- Restore the original setting whenever the margin closes.
+  api.nvim_create_autocmd("WinClosed", {
+    pattern = tostring(margin_win),
+    once = true,
+    callback = function()
+      if api.nvim_win_is_valid(text_win) then
+        api.nvim_set_option_value("winfixwidth", was_fixed, {
+          win = text_win,
+        })
+      end
+    end,
+  })
+end
+
+map("n", "<leader>rm", toggle_reading_margin, {
+  desc = "Toggle reading margin",
+})
+
 -- Smart Ctrl‑n: open tree, focus it, or close it only when focused
 map("n", "<C-n>", function()
   local ft = vim.bo.filetype
@@ -105,6 +180,7 @@ map("n", "<leader>lo", ':lua require("nvterm.terminal").send("typst watch main.t
 local nvterm = require("nvterm.terminal")
 
 local typst_autosave = false
+local typst_autosave_timer_ref = {}
 
 map("n", "<leader>ta", function()
   typst_autosave = not typst_autosave
@@ -198,19 +274,19 @@ local function latex_compile_debounced()
   end)
 end
 
--- Autosave + compile on change
 vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
-  callback = function()
-    local buf = vim.api.nvim_get_current_buf()
-    local name = vim.api.nvim_buf_get_name(buf)
-
-    if name:sub(-4) == ".typ" and typst_autosave then
-      vim.cmd("silent write")
-      typst_compile_debounced()
-    --elseif name:sub(-4) == ".tex" then
-    --  vim.cmd("silent write")
-    --  latex_compile_debounced()
+  callback = function(args)
+    if not typst_autosave or vim.bo[args.buf].filetype ~= "typst" or not vim.bo[args.buf].modified then
+      return
     end
+
+    debounce(typst_autosave_timer_ref, 2500, function()
+      if vim.api.nvim_buf_is_valid(args.buf) and vim.bo[args.buf].modified then
+        vim.api.nvim_buf_call(args.buf, function()
+          vim.cmd("silent noautocmd write")
+        end)
+      end
+    end)
   end,
 })
 

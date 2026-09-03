@@ -6,10 +6,10 @@
 local M = {}
 
 -- nice dark theme
--- theme = "ayu_dark",
+-- theme = "chocolate",
 
 M.base46 = {
-	theme = "ayu_dark",
+	theme = "chocolate",
 
   transparency = true,
 	hl_override = {
