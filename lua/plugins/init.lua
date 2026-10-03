@@ -52,7 +52,7 @@ return {
     end,
   },
 
-  {"github/copilot.vim", lazy = false }, 
+  --{"github/copilot.vim", lazy = false }, 
 
   { "lervag/vimtex", lazy = false }, 
 
@@ -88,6 +88,20 @@ return {
     -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
     ---@module 'render-markdown'
     ---@type render.md.UserConfig
+    init = function()
+      vim.treesitter.query.set("markdown", "injections", [[
+        (fenced_code_block
+          (info_string
+            (language) @injection.language)
+          (code_fence_content) @injection.content)
+
+        ((inline) @injection.content
+          (#set! injection.language "markdown_inline"))
+
+        ((html_block) @injection.content
+          (#set! injection.language "html"))
+      ]])
+    end,
     opts = {},
     lazy = false,
   },
