@@ -1,4 +1,5 @@
 require "nvchad.autocmds"
+require("configs.wezterm_theme").setup()
 
 local autocmd = vim.api.nvim_create_autocmd
 

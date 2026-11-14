@@ -11,7 +11,7 @@ local M = {}
 M.base46 = {
 	theme = "chadtain",
 
-  transparency = true,
+  transparency = false,
 	hl_override = {
 	  Comment = { italic = true },
 	 	["@comment"] = { italic = true },
@@ -21,7 +21,7 @@ M.base46 = {
 }
 
 M.ui = {
-  transparency = true,
+  transparency = false,
   nvdash = {
     load_on_startup = true,
   },
