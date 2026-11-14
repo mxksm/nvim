@@ -17,6 +17,8 @@ M.base46 = {
 	 	["@comment"] = { italic = true },
     Visual = { fg = "white", bg = "darkgrey" },
     LineNr = { fg = "#6c707b" },
+    TbFill = { link = "Normal" },
+    TabLineFill = { link = "Normal" },
 	},
 }
 
@@ -30,6 +32,13 @@ M.ui = {
     lazyload = false,
     order = { "treeOffset", "buffers", "tabs" },
   },
+}
+
+M.themepicker = {
+  mappings = function(buf)
+    vim.cmd.stopinsert()
+    vim.keymap.set("i", "<Esc>", "<Esc>", { buffer = buf, desc = "Return to normal mode" })
+  end,
 }
 
 M.plugins = "plugins"
