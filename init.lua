@@ -1,6 +1,8 @@
 vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
 vim.g.mapleader = " "
 
+require("configs.sioyek_themes").register()
+
 -- bootstrap lazy and all plugins
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
@@ -24,6 +26,10 @@ require("lazy").setup({
 
   { import = "plugins" },
 }, lazy_config)
+
+-- Compile our palette so an old Base46 cache cannot restore a removed theme.
+require("configs.sioyek_themes").setup_picker()
+require("base46").load_all_highlights()
 
 -- load theme
 dofile(vim.g.base46_cache .. "defaults")
