@@ -32,4 +32,5 @@ To verify the catalog and theme behavior:
 ```sh
 python3 nvim/scripts/sync-sioyek-themes.py --check
 nvim --headless -u NONE -i NONE -l nvim/tests/sioyek_themes.lua
+nvim --headless -u NONE -i NONE -l nvim/tests/theme_picker_input.lua
 ```

@@ -27,7 +27,7 @@ for _, entry in ipairs(catalog) do
   local palette = require("configs.wezterm_theme").palette()
   assert(palette.background:lower() == entry.colors.custom_background_color:lower(), entry.name .. " terminal sync")
 end
-local filter = require("nvchad.themes.utils").filter
+local filter = themes.filter
 assert(vim.deep_equal(filter(themes.names(), "gruvbox"), { "Gruvbox Dark", "Gruvbox Light" }))
 assert(#filter(themes.names(), "rose pine") == 2, "accent-insensitive names")
 assert(#filter(themes.names(), "[") == 0, "search is literal, not a Lua pattern")
@@ -74,6 +74,8 @@ require("volt").close()
 assert(config.base46.theme == "Violet Charcoal", "cancel restores saved theme")
 require("nvchad.themes").open()
 state = require "nvchad.themes.state"
+keys("/graphite<Esc>")
+assert(vim.deep_equal(state.themes_shown, { "Catppuccin Graphite", "Graphite" }), "search survives closing and reopening picker")
 require("nvchad.themes.api").move_up()
 local chosen = config.base46.theme
 local confirm = vim.fn.maparg("<CR>", "n", false, true).callback

@@ -92,22 +92,24 @@ function M.register()
   end
 end
 
+-- Keep this outside nvchad.themes: closing the picker unloads that namespace.
+-- Otherwise reopening silently restores the stock case-sensitive filter.
+function M.filter(list, query)
+  local result = {}
+  local function normalized(value)
+    return value:lower():gsub("é", "e"):gsub("[%s_%-]", "")
+  end
+  query = normalized(query)
+  for _, name in ipairs(list) do
+    if normalized(name):find(query, 1, true) then
+      result[#result + 1] = name
+    end
+  end
+  return result
+end
+
 function M.setup_picker()
   require("nvchad.utils").list_themes = M.names
-  -- Keep display names identical to Sioyek, with forgiving literal search.
-  require("nvchad.themes.utils").filter = function(list, query)
-    local result = {}
-    local function normalized(value)
-      return value:lower():gsub("é", "e"):gsub("[%s_%-]", "")
-    end
-    query = normalized(query)
-    for _, name in ipairs(list) do
-      if normalized(name):find(query, 1, true) then
-        result[#result + 1] = name
-      end
-    end
-    return result
-  end
 end
 
 -- Keep the choice out of tracked configuration, so changing themes never
@@ -149,7 +151,7 @@ function M.picker_mappings(buf)
       local query = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), " ")
       if query == previous_query then return end
       previous_query = query
-      state.themes_shown = require("nvchad.themes.utils").filter(state.val, query)
+      state.themes_shown = M.filter(state.val, query)
       state.index = 1
       state.active_theme = state.themes_shown[1] or ""
       state.scrolled = false
