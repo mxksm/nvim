@@ -5,7 +5,7 @@ The editor background and main text match the PDF page colors; floating panels
 use Sioyek's panel colors. Syntax colors are derived from the annotation palette,
 softened and adjusted for readability on both dark and light backgrounds.
 
-The picker starts in normal mode: `j`/`k` preview themes, `i` searches,
+The picker starts in normal mode: `j`/`k` preview themes, `/` or `i` searches,
 Enter keeps the choice, and Escape in normal mode restores the saved theme.
 Search ignores capitalization, spaces, hyphens, and underscores. The saved
 theme is selected and scrolled into view when the picker opens.

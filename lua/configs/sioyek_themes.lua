@@ -132,6 +132,41 @@ end
 
 function M.picker_mappings(buf)
   local state = require "nvchad.themes.state"
+  -- The stock picker uses a prompt buffer and only handles TextChangedI.
+  -- Use ordinary editable text so normal-mode edits/undo also filter results,
+  -- without treating the prompt icon (or its byte width) as part of the query.
+  for _, event in ipairs { "TextChangedI", "TextChanged" } do
+    vim.api.nvim_clear_autocmds { event = event, buffer = buf }
+  end
+  vim.bo[buf].buftype = "nofile"
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "" })
+  vim.api.nvim_win_set_cursor(state.input_win, { 1, 0 })
+  vim.api.nvim_win_set_config(state.input_win, { title = " Search themes ", title_pos = "left" })
+  local previous_query = ""
+  vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP", "InsertLeave" }, {
+    buffer = buf,
+    callback = function()
+      local query = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), " ")
+      if query == previous_query then return end
+      previous_query = query
+      state.themes_shown = require("nvchad.themes.utils").filter(state.val, query)
+      state.index = 1
+      state.active_theme = state.themes_shown[1] or ""
+      state.scrolled = false
+      vim.bo[state.buf].modifiable = true
+      local blank = {}
+      for i = 1, vim.api.nvim_buf_line_count(state.buf) do blank[i] = "" end
+      vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, blank)
+      vim.bo[state.buf].modifiable = false
+      vim.api.nvim_buf_clear_namespace(state.buf, state.ns, 0, -1)
+      require("volt").redraw(state.buf, "all")
+      vim.api.nvim_win_set_cursor(state.win, { 1, 0 })
+      vim.api.nvim_win_call(state.win, function() vim.cmd "normal! zt" end)
+      if state.themes_shown[1] then
+        require("nvchad.themes.utils").reload_theme(state.themes_shown[1])
+      end
+    end,
+  })
   local current = require("nvconfig").base46.theme
   for index, name in ipairs(state.themes_shown) do
     if name == current then
@@ -144,6 +179,7 @@ function M.picker_mappings(buf)
   vim.api.nvim_win_set_cursor(state.win, { math.min(row, vim.api.nvim_buf_line_count(state.buf)), 0 })
   vim.api.nvim_win_call(state.win, function() vim.cmd "normal! zz" end)
   vim.cmd.stopinsert()
+  vim.keymap.set("n", "/", "A", { buffer = buf, desc = "Search themes" })
   vim.keymap.set("i", "<Esc>", "<Esc>", { buffer = buf, desc = "Return to normal mode" })
   vim.keymap.set({ "n", "i" }, "<CR>", function()
     local name = state.themes_shown[state.index]
