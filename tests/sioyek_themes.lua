@@ -82,6 +82,28 @@ local confirm = vim.fn.maparg("<CR>", "n", false, true).callback
 confirm()
 assert(themes.selected() == chosen, "Enter persists the preview")
 assert(config.base46.theme == chosen, "Enter keeps the preview")
+-- Check the actual Option+I mapping, including reuse after a theme change.
+require "mappings"
+vim.o.shell = "/bin/sh"
+local toggle_terminal = vim.fn.maparg("<A-i>", "n", false, true).callback
+toggle_terminal()
+local terminal_buf = vim.api.nvim_get_current_buf()
+local function check_terminal_surface()
+  local remaps = {}
+  for from, to in vim.wo.winhighlight:gmatch("([^,:]+):([^,]+)") do remaps[from] = to end
+  assert(remaps.Normal == "NormalFloat" and remaps.NormalFloat == "NormalFloat", "terminal uses floating surface")
+  local border = vim.api.nvim_get_hl(0, { name = remaps.FloatBorder, link = false })
+  local panel = vim.api.nvim_get_hl(0, { name = "NormalFloat", link = false })
+  assert(border.bg == panel.bg, "terminal and frame share panel background")
+end
+check_terminal_surface()
+toggle_terminal()
+require("nvchad.themes.utils").reload_theme("Paper White")
+toggle_terminal()
+assert(vim.api.nvim_get_current_buf() == terminal_buf, "toggle reuses shell")
+check_terminal_surface()
+vim.fn.jobstop(vim.b[terminal_buf].terminal_job_id)
+toggle_terminal()
 vim.fn.delete(temp, "rf")
 print("PASS: 26 matching palettes, highlights, terminal sync, filtered picker, preview, rollback and persistence")
 vim.cmd "qa!"

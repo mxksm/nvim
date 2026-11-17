@@ -179,6 +179,18 @@ map("n", "<leader>lo", ':lua require("nvterm.terminal").send("typst watch main.t
 
 local nvterm = require("nvterm.terminal")
 
+-- Keep the floating terminal's frame on the same surface as its contents.
+-- Other terminal splits should continue to use the editor background.
+map({ "n", "t" }, "<A-i>", function()
+  require("nvchad.term").toggle {
+    pos = "float",
+    id = "floatTerm",
+    winopts = {
+      winhighlight = "Normal:NormalFloat,NormalFloat:NormalFloat,FloatBorder:SioyekTerminalBorder",
+    },
+  }
+end, { desc = "Toggle floating terminal" })
+
 local typst_autosave = false
 local typst_autosave_timer_ref = {}
 

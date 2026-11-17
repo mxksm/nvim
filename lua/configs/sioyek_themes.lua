@@ -69,6 +69,7 @@ local function build(entry)
     polish_hl = {
       defaults = {
         NormalFloat = { bg = panel, fg = c.ui_text_color },
+        SioyekTerminalBorder = { bg = panel, fg = selection },
         Pmenu = { bg = panel, fg = c.ui_text_color },
         PmenuSel = { bg = selection, fg = c.ui_selected_text_color },
         Visual = { bg = selection, fg = c.ui_selected_text_color },
