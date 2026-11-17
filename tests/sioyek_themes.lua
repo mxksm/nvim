@@ -14,6 +14,7 @@ local themes = require "configs.sioyek_themes"
 themes.register()
 themes.setup_picker()
 local config = require "nvconfig"
+require("which-key.colors").setup()
 assert(#themes.names() == 26)
 assert(vim.deep_equal(require("nvchad.utils").list_themes(), themes.names()))
 for _, entry in ipairs(catalog) do
@@ -23,7 +24,13 @@ for _, entry in ipairs(catalog) do
   assert(normal.bg == tonumber(entry.colors.custom_background_color:sub(2), 16), entry.name .. " background")
   assert(normal.fg == tonumber(entry.colors.custom_text_color:sub(2), 16), entry.name .. " foreground")
   assert(vim.api.nvim_get_hl(0, { name = "NormalFloat", link = false }).bg ==
-    tonumber(entry.colors.ui_background_color:sub(2), 16), entry.name .. " floating panel")
+    normal.bg, entry.name .. " floating background matches editor")
+  assert(vim.api.nvim_get_hl(0, { name = "WhichKeyNormal", link = false }).bg ==
+    normal.bg, entry.name .. " command hints match editor")
+  for _, group in ipairs { "FloatBorder", "SioyekTerminalBorder", "WhichKeyBorder" } do
+    local border = vim.api.nvim_get_hl(0, { name = group, link = false })
+    assert(border.bg == normal.bg and border.fg ~= normal.bg, entry.name .. " visible " .. group)
+  end
   local palette = require("configs.wezterm_theme").palette()
   assert(palette.background:lower() == entry.colors.custom_background_color:lower(), entry.name .. " terminal sync")
 end
@@ -94,7 +101,9 @@ local function check_terminal_surface()
   assert(remaps.Normal == "NormalFloat" and remaps.NormalFloat == "NormalFloat", "terminal uses floating surface")
   local border = vim.api.nvim_get_hl(0, { name = remaps.FloatBorder, link = false })
   local panel = vim.api.nvim_get_hl(0, { name = "NormalFloat", link = false })
-  assert(border.bg == panel.bg, "terminal and frame share panel background")
+  local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+  assert(border.bg == normal.bg and panel.bg == normal.bg, "terminal and frame match editor background")
+  assert(border.fg ~= normal.bg, "terminal boundary stays visible")
 end
 check_terminal_surface()
 toggle_terminal()

@@ -179,8 +179,7 @@ map("n", "<leader>lo", ':lua require("nvterm.terminal").send("typst watch main.t
 
 local nvterm = require("nvterm.terminal")
 
--- Keep the floating terminal's frame on the same surface as its contents.
--- Other terminal splits should continue to use the editor background.
+-- Match the editor background; the contrasting frame distinguishes the float.
 map({ "n", "t" }, "<A-i>", function()
   require("nvchad.term").toggle {
     pos = "float",

@@ -1,5 +1,10 @@
 return {
   {
+    "folke/which-key.nvim",
+    opts = { win = { border = "single" } },
+  },
+
+  {
     "stevearc/conform.nvim",
     -- event = 'BufWritePre', -- uncomment for format on save
     opts = require "configs.conform",
