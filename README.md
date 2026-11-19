@@ -53,3 +53,8 @@ open; after restarting it, save once to refresh the connection.
 The accompanying Sioyek config and application build are required. The helper
 runs Tinymist briefly for each lookup; it does not open a browser or leave a
 preview service running. Ordinary `typst compile` outputs are not registered.
+
+`work open` in the [scripts repo](https://github.com/mxksm/scripts) uses the same
+compile-and-view function automatically. Its `-wd` option opens a separate
+Sioyek window. An explicit Typst filename remains the compilation entry point
+on subsequent saves, even when there is a neighboring `main.typ`.

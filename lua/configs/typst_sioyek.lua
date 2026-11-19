@@ -35,8 +35,43 @@ function M.jump(location)
   return ok and 'ok' or tostring(err)
 end
 
-function M.compile_and_view()
-  local file = vim.fn.filereadable('main.typ') == 1 and 'main.typ' or vim.api.nvim_buf_get_name(0)
+function M.source_file()
+  return vim.b.typst_main_file or
+    (vim.fn.filereadable('main.typ') == 1 and 'main.typ' or vim.api.nvim_buf_get_name(0))
+end
+
+local function open_pdf(pdf, new_window)
+  if new_window then
+    local executable = vim.fn.exepath 'sioyek'
+    if executable == '' then
+      for _, path in ipairs {
+        '~/.local/bin/sioyek', '~/Applications/sioyek.app/Contents/MacOS/sioyek',
+        '/Applications/sioyek.app/Contents/MacOS/sioyek',
+      } do
+        path = vim.fn.expand(path)
+        if vim.fn.executable(path) == 1 then
+          executable = path
+          break
+        end
+      end
+    end
+    if executable == '' then
+      vim.notify('Cannot find Sioyek to open a new window.', vim.log.levels.ERROR)
+      return
+    end
+    vim.fn.jobstart({ executable, '--new-window', pdf }, { detach = true })
+  elseif vim.fn.has 'mac' == 1 then
+    vim.fn.jobstart({ 'open', '-a', 'sioyek', pdf }, { detach = true })
+  else
+    vim.fn.jobstart({ 'sioyek', pdf }, { detach = true })
+  end
+end
+
+function M.compile_and_view(options)
+  options = options or {}
+  local file = vim.fn.fnamemodify(options.file or M.source_file(), ':p')
+  -- Preserve work open's explicit entry point for subsequent saves/Space lo.
+  vim.b.typst_main_file = file
   local args = M.command(file, os.date '%Y %m %d %H %M %S')
   local errors = {}
   vim.fn.jobstart(args, {
@@ -49,11 +84,7 @@ function M.compile_and_view()
           return
         end
         local pdf = vim.fn.fnamemodify(file, ':p:r') .. '.pdf'
-        if vim.fn.has 'mac' == 1 then
-          vim.fn.jobstart({ 'open', '-a', 'sioyek', pdf }, { detach = true })
-        else
-          vim.fn.jobstart({ 'sioyek', pdf }, { detach = true })
-        end
+        open_pdf(pdf, options.new_window)
       end)
     end,
   })

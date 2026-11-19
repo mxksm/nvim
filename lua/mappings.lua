@@ -202,9 +202,9 @@ map("n", "<leader>ta", function()
   )
 end, { desc = "Toggle Typst autosave" })
 
-local function typst_args()
+local function typst_args(file)
   local now = os.date("%Y %m %d %H %M %S")
-  return "main.typ", now
+  return file or require("configs.typst_sioyek").source_file(), now
 end
 
 local typst_state = {
@@ -212,8 +212,8 @@ local typst_state = {
   last_error = nil,
 }
 
-local function typst_compile_silent()
-  local file, now = typst_args()
+local function typst_compile_silent(source)
+  local file, now = typst_args(source)
   vim.fn.jobstart(
     require("configs.typst_sioyek").command(file, now),
     {
@@ -272,9 +272,9 @@ end
 
 local typst_timer_ref = {}
 
-local function typst_compile_debounced()
+local function typst_compile_debounced(file)
   debounce(typst_timer_ref, 500, function()
-    typst_compile_silent()
+    typst_compile_silent(file)
   end)
 end
 
@@ -305,7 +305,10 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 vim.api.nvim_create_autocmd("BufWritePost", {
   callback = function(args)
     if args.file:sub(-4) == ".typ" then
-      typst_compile_debounced()
+      local source = vim.api.nvim_buf_call(args.buf, function()
+        return vim.fn.fnamemodify(require("configs.typst_sioyek").source_file(), ":p")
+      end)
+      typst_compile_debounced(source)
     end
   end,
 })
