@@ -38,10 +38,9 @@ function M.publish(force)
   if not colors then return end
   local signature = vim.json.encode(colors)
   if not force and signature == last_palette then return end
-  local changed = last_palette ~= nil and signature ~= last_palette
   last_palette = signature
   -- A nonce also refreshes the colors when returning to another Neovim pane.
-  local payload = vim.json.encode { colors = colors, changed = changed, nonce = tostring(vim.uv.hrtime()) }
+  local payload = vim.json.encode { colors = colors, nonce = tostring(vim.uv.hrtime()) }
   local sequence = "\027]1337;SetUserVar=NVIM_THEME=" .. vim.base64.encode(payload) .. "\007"
   if vim.api.nvim_ui_send then vim.api.nvim_ui_send(sequence)
   else vim.api.nvim_chan_send(2, sequence) end
@@ -49,6 +48,7 @@ end
 
 function M.setup()
   local group = vim.api.nvim_create_augroup("WezTermTheme", { clear = true })
+  local consume_request = require("configs.wezterm_theme_requests").setup(function() M.publish(true) end)
   local function schedule()
     generation = generation + 1
     local pending = generation
@@ -60,7 +60,7 @@ function M.setup()
     group = group, callback = schedule,
   })
   vim.api.nvim_create_autocmd("FocusGained", {
-    group = group, callback = function() M.publish(true) end,
+    group = group, callback = function() consume_request(); M.publish(true) end,
   })
   -- Plugin versions differ in which theme events they emit. At the end of an
   -- input cycle, inspect the actual highlights too; send only changed palettes.
