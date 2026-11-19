@@ -38,9 +38,10 @@ function M.publish(force)
   if not colors then return end
   local signature = vim.json.encode(colors)
   if not force and signature == last_palette then return end
+  local changed = last_palette ~= nil and signature ~= last_palette
   last_palette = signature
   -- A nonce also refreshes the colors when returning to another Neovim pane.
-  local payload = vim.json.encode { colors = colors, nonce = tostring(vim.uv.hrtime()) }
+  local payload = vim.json.encode { colors = colors, changed = changed, nonce = tostring(vim.uv.hrtime()) }
   local sequence = "\027]1337;SetUserVar=NVIM_THEME=" .. vim.base64.encode(payload) .. "\007"
   if vim.api.nvim_ui_send then vim.api.nvim_ui_send(sequence)
   else vim.api.nvim_chan_send(2, sequence) end
