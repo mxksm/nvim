@@ -174,7 +174,8 @@ end
 map("n", "<leader>la", la_compile, { desc = "LaTeX compile + view", noremap = true, silent = true })
 map("n", "<leader>cc", ":VimtexCompile<CR>", { desc = "Compile LaTeX", noremap = true, silent = true })
 map("n", "<leader>pd", ':lua vim.fn.jobstart({"zsh", "-c", "source ~/.zshrc && pdf"}, {detach = true})<CR>', { desc = "Open PDF", noremap = true, silent = true })
-map("n", "<leader>lo", ':lua require("nvterm.terminal").send("typst watch main.typ", "horizontal")<CR>:lua vim.fn.jobstart({"zsh", "-c", "source ~/.zshrc && pdf"}, {detach = true})<CR>', { desc = "Typst watch + PDF", noremap = true, silent = true })
+map("n", "<leader>lo", function() require("configs.typst_sioyek").compile_and_view() end,
+  { desc = "Typst compile + PDF", silent = true })
 
 
 local nvterm = require("nvterm.terminal")
@@ -214,7 +215,7 @@ local typst_state = {
 local function typst_compile_silent()
   local file, now = typst_args()
   vim.fn.jobstart(
-    { "typst", "compile", file, "--input", "now=" .. now },
+    require("configs.typst_sioyek").command(file, now),
     {
       stdout_buffered = true,
       stderr_buffered = true,
@@ -386,7 +387,7 @@ local function toggle_typst_terminal()
 
       local file, now = typst_args()
       nvterm.send(
-        string.format('typst compile "%s" --input "now=%s"', file, now),
+        table.concat(vim.tbl_map(vim.fn.shellescape, require("configs.typst_sioyek").command(file, now)), " "),
         "float",
         1
       )

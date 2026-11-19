@@ -34,3 +34,22 @@ python3 nvim/scripts/sync-sioyek-themes.py --check
 nvim --headless -u NONE -i NONE -l nvim/tests/sioyek_themes.lua
 nvim --headless -u NONE -i NONE -l nvim/tests/theme_picker_input.lua
 ```
+
+## Typst PDFs in Sioyek
+
+Install the inverse-search compiler once:
+
+```sh
+python3 ~/.config/sioyek/commands/install_tinymist.py
+```
+
+Saving a Typst file recompiles `main.typ` in the working directory through
+Tinymist and registers the PDF with this Neovim session. `Space lo` compiles and
+opens the PDF (using the current file if there is no `main.typ`). In Sioyek,
+press `sd` and choose a line label, or Cmd+click the text, to jump back to source.
+This also works for included `.typ` files. Keep the compiling Neovim session
+open; after restarting it, save once to refresh the connection.
+
+The accompanying Sioyek config and application build are required. The helper
+runs Tinymist briefly for each lookup; it does not open a browser or leave a
+preview service running. Ordinary `typst compile` outputs are not registered.
