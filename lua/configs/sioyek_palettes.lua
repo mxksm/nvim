@@ -20,7 +20,7 @@ return vim.json.decode([=[
       "custom_text_color": "#ffffff",
       "custom_color_mode_empty_background_color": "#3c3c3c",
       "ui_text_color": "#cdd6f4",
-      "ui_background_color": "#2e2e2e",
+      "ui_background_color": "#505050",
       "ui_selected_text_color": "#2e2e2e",
       "ui_selected_background_color": "#7a7a7a",
       "status_bar_color": "#2e2e2e",
